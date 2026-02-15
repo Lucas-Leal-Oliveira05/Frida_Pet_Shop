@@ -41,11 +41,11 @@ RNF13 – O sistema deve possuir endpoint de health check.
 RNF14 – O sistema deve registrar eventos importantes (login, compra, agendamento).
 
 Linguagens:
-  node/js + JavaScript
-  TypeScript
-  React
+  node/js + JavaScript (conhecimento prévio)
+  TypeScript (conhecimento prévio)
+  React (interesse em aprender)
 Banco:
-  SupaBase
+  SupaBase (conhecimento prévio)
 
 organização das tarefas
 Lucas:
