@@ -3,8 +3,8 @@ O Objetivo neste trabalho será o desenvolvimento de um site para um PetShop hip
 
 Requisitos
 Funcionais:
-RF01 – O sistema deve permitir o cadastro de usuários.
-RF02 – O sistema deve permitir login com e-mail e senha.
+RF01 – O sistema deve permitir o cadastro de usuários.  
+RF02 – O sistema deve permitir login com e-mail e senha.  
 RF03 – O sistema deve permitir logout do usuário autenticado.
 RF04 – O sistema deve permitir atualização dos dados do usuário.
 RF05 – O sistema deve permitir diferentes perfis de acesso (ADMIN e CLIENTE).
