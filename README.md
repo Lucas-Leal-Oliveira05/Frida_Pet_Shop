@@ -72,6 +72,7 @@ dividido para os dois:
 -telas  
 -definição e proteção de rotas  
 
+Link do figma: https://www.figma.com/design/rUGZWh0h4n0q6GM8GYLDbk/Frida_PetShop?node-id=35-307&t=Drl2CbV0i2dHt8At-0
 
 
 
