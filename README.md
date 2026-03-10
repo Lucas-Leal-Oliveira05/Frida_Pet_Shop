@@ -1,6 +1,7 @@
 # Frida_Pet_Shop
 O Objetivo neste trabalho será o desenvolvimento de um site para um PetShop hipotética.
 
+
 Requisitos
 Funcionais:
 RF01 – O sistema deve permitir o cadastro de usuários.
