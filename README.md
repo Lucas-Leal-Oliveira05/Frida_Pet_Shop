@@ -1,5 +1,5 @@
 # Frida_Pet_Shop
-O Objetivo neste trabalho será o desenvolvimento de um site para um PetShop hipotética.
+O Objetivo neste trabalho será o desenvolvimento de um sistema web para um PetShop hipotética.
 
 Requisitos
 Funcionais:

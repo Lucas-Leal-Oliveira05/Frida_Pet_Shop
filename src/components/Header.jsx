@@ -1,5 +1,5 @@
 import { CircleUserRound, Search } from 'lucide-react';
-import Logo from '../assets/Frida_logo.png'
+import Logo from '../assets/logo/Frida_logo.png'
 
 function Header(){
     return(

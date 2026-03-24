@@ -1,10 +1,10 @@
 import Header from "./components/Header";
-
+import Footerx from "./components/Footerx";
 
 function App(){
   return(
     <div>
-      <Header/>
+      <Footerx/>
     </div>
   );
 }
