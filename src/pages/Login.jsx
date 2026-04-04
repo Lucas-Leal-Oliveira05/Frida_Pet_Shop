@@ -1,8 +1,37 @@
 import Header from "../components/Header";
 import Footerx from "../components/Footerx";
 import Logo from '../assets/logo/Frida_logo.png'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/authService";
+
 
 function Login() {
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const navigate = useNavigate();
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
+        try{
+            const {data,error} = await loginUser(email,password);
+            if(error){
+                console.error("Erro retornando pelo Subase:", error.message);
+                alert("Erro: " + error.message);
+                return;
+            }
+            await loginUser(email,password);
+            console.log("Usuário logado com sucesso:", data);
+            alert("Login realizado com sucesso!");
+            navigate('/');
+        } catch (error) {
+            console.error("Erro inesperado na função:", error);
+            alert("Erro ao entrar: " + error.message);
+        }
+    }
+
     return (
         <div className="min-h-screen bg-[#F6EBDD] flex flex-col">
             <Header />
@@ -11,13 +40,16 @@ function Login() {
                     <div className="mb-8">
                         <img className='h-24' src={Logo} alt="Logo - Petshop" />
                     </div>
-                    <form className="w-full flex flex-col gap-6">
+                    <form onSubmit={handleLogin} className="w-full flex flex-col gap-6">
                         <div className="flex flex-col gap-1">
-                            <label className="text-[#7A5A3F] font-semibold text-lg">Usuário</label>
+                            <label className="text-[#7A5A3F] font-semibold text-lg">Email</label>
                             <input
                                 type="text"
                                 placeholder="Digite seu email"
                                 className="w-full h-12 px-4 rounded-md border-none outline-none drop-shadow-2xl bg-[#FFFFFF]"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="flex flex-col gap-1">
@@ -26,6 +58,9 @@ function Login() {
                                 type="password"
                                 placeholder="Digite sua senha"
                                 className="w-full h-12 px-4 rounded-md border-none outline-none drop-shadow-2xl bg-[#FFFFFF]"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="flex gap-4 mt-2">
