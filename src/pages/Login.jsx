@@ -7,7 +7,7 @@ function Login() {
         <div className="min-h-screen bg-[#F6EBDD] flex flex-col">
             <Header />
             <main className="flex-1 flex justify-center items-center p-4  md:p-10">
-                <div className="w-150 h-600px bg-[#F1E3C6] rounded-[40px] shadow-lg flex flex-col items-center p-8">
+                <div className="w-150 h-564px bg-[#F1E3C6] rounded-[40px] shadow-lg flex flex-col items-center p-8">
                     <div className="mb-8">
                         <img className='h-24' src={Logo} alt="Logo - Petshop" />
                     </div>
