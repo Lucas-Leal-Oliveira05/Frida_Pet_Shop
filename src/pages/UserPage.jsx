@@ -28,7 +28,7 @@ function UserPage(){
                         <p>(horário/data)</p>
                     </div>
                 </section>  
-
+                                                                            
                 <section className="flex flex-col mt-20 px-4 md:px-10 lg:px-28">
                     <h1 className="text-[#7A5A3F] text-lg">Meus Pets (refazer quando banco funcionar)</h1>
 
