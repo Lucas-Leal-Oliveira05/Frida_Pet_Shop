@@ -25,7 +25,7 @@ function Login() {
             await loginUser(email,password);
             console.log("Usuário logado com sucesso:", data);
             alert("Login realizado com sucesso!");
-            navigate('/');
+            navigate('/UserPage');
         } catch (error) {
             console.error("Erro inesperado na função:", error);
             alert("Erro ao entrar: " + error.message);
@@ -71,7 +71,7 @@ function Login() {
                                 <img src="/src/assets/icons/facebook.svg" className="w-6 h-6" alt="" /> Entrar com o facebook
                             </button>
                         </div>
-                        <a href="#" className="text-[#5B9A93] text-sm text-center font-medium hover:underline">
+                        <a href="/CadastroUsuario" className="text-[#5B9A93] text-sm text-center font-medium hover:underline">
                             Não possui uma conta? Crie uma agora
                         </a>
                         <button className="w-full h-16 bg-[#E8837E] text-white text-3xl font-bold rounded-2xl mt-4 shadow-md hover:bg-[#d6726d] transition-all ">

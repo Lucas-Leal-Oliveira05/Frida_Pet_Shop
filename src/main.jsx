@@ -1,11 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
-import EditarPet from './pages/EditarPet.jsx'
+import App from './App.jsx' // Aqui você importa o "chefe" das rotas
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <EditarPet/>
-  </StrictMode>
+    <App /> 
+  </StrictMode>,
 )
+
