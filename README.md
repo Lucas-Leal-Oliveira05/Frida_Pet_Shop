@@ -69,5 +69,9 @@ dividido para os dois:
 -pipeline CI/CD  
 -interface  
 -telas  
--definição e proteção de rotas  
+-definição e proteção de rotas 
+
+Figma:
+
+https://www.figma.com/design/rUGZWh0h4n0q6GM8GYLDbk/Frida_PetShop?node-id=0-1&t=6UQ3c18EgQnv0DDl-1
 
