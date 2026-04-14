@@ -1,11 +1,21 @@
-import Header from "./components/Header";
-import Footerx from "./components/Footerx";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
+import Home from './pages/Home'
+import Login from "./pages/Login";
+import CadastroUsuario from "./pages/CadastroUsuario";
+import CadastroPet from "./pages/CadastroPet";
+import UserPage from "./pages/UserPage";
 
 function App(){
   return(
-    <div>
-      <Footerx/>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login/>}/> 
+        <Route path="/CadastroUsuario" element={<CadastroUsuario/>}/>
+        <Route path="/CadastroPet" element={<CadastroPet/>} />
+        <Route path="/UserPage" element={<UserPage/>}/>
+      </Routes>
+    </Router>
   );
 }
 

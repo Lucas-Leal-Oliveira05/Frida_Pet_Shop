@@ -9,7 +9,7 @@ function Footerx(){
             <div className="h-50 w-70  bg-[#F3D77A] flex flex-col items-center pl-3 text-[#7A5A3F]">
                 <h1 className="pt-3 text-2xl font-medium">Como podemos ajudar você?</h1>
                 <p className="pt-3">Conheça mais sobre nossa empresa, políticas e tenha o melhor atendimento do mercado pet</p>
-              </div>
+            </div>
 
             <div className="flex flex-col text-white gap-4 text-lg">
                 <h1>Links</h1>

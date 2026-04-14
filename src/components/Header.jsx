@@ -28,7 +28,7 @@ function Header(){
                             <button>Sobre</button>
                             <button>Contato</button>
                         </div>
-                        <button className='absolute right-4 rounded-md bg-[#E67C73] px-6 py-3 text-sm font-medium'>
+                        <button className='text-white absolute right-4 rounded-md bg-[#E67C73] px-6 py-3 text-sm font-medium'>
                             Agendar Serviços
                         </button>
                     </div> 
