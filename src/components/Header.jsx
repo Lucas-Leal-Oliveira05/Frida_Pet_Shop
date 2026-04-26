@@ -1,7 +1,21 @@
+import { useNavigate } from 'react-router-dom';
 import { CircleUserRound, Search } from 'lucide-react';
 import Logo from '../assets/logo/Frida_logo.png'
+import { usuarioAutenticado } from '../services/authService';
 
 function Header(){
+
+    const navigate = useNavigate();
+
+    const handleUserClick = async () => {
+        const logado = await usuarioAutenticado();
+        
+        if(logado){
+            navigate('/CadastroPet')
+        } else {
+            navigate('/login')
+        }
+    }
     return(
         <div>
             <div className='w-full pl-4 pr-8 bg-[#5FA79B] flex flex-row justify-between items-center '>
@@ -17,7 +31,7 @@ function Header(){
                                 <Search/>
                             </button>
                         </div>
-                        <div className=' bg-[#F1E3C6] rounded-full flex items-center justify-center p-2'>
+                        <div onClick={handleUserClick} className=' bg-[#F1E3C6] rounded-full flex items-center justify-center p-2 cursor-pointer active:scale-95 hover:bg-[#d9ccb2] transition-all'>
                             <CircleUserRound strokeWidth={1.25} size={50}/>
                         </div>                
                     </div>
