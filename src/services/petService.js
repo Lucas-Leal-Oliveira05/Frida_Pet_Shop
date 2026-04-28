@@ -1,5 +1,21 @@
 import { supabase } from "./supabase";
 
+export const getPetsUsuario = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('pets')
+    .select('*')
+    .eq('usuario_id', user.id);
+  if (error) throw error;
+  return data;
+}
+
+
+
+
+
 export const cadastroPets = async (petData) => {
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -8,15 +24,15 @@ export const cadastroPets = async (petData) => {
   const { data, error } = await supabase
     .from('pets')
     .insert([
-      { 
+      {
         nome: petData.nome,
         especie: petData.especie,
         raca: petData.raca,
-        nascimento: petData.nascimento, 
+        nascimento: petData.nascimento,
         peso: petData.peso ? parseFloat(petData.peso) : null,
         observacoes: petData.observacoes,
         foto_url: petData.foto_url,
-        usuario_id: user.id 
+        usuario_id: user.id
       }
     ]);
 

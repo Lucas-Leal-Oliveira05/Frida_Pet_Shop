@@ -1,35 +1,60 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from "../components/Header";
 import Footerx from "../components/Footerx";
 import { logoutUser, deletarUsuarioCompleto } from "../services/authService";
+import { getPerfilUsuario } from '../services/userService';
+import { getPetsUsuario } from '../services/petService';
 
 function UserPage() {
     const navigate = useNavigate();
+    
+    // Estados para armazenar os dados que vêm do banco
+    const [perfil, setPerfil] = useState(null);
+    const [pets, setPets] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Função para Logout simples
+    // useEffect: Dispara assim que a página abre
+    useEffect(() => {
+        async function carregarDados() {
+            try {
+                const dadosPerfil = await getPerfilUsuario();
+                const listaPets = await getPetsUsuario();
+                
+                setPerfil(dadosPerfil);
+                setPets(listaPets);
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+        carregarDados();
+    }, []);
+
     const handleLogout = async () => {
         await logoutUser();
         navigate('/Login');
     };
 
-    // Função para Excluir Conta (LGPD)
     const handleDeleteAccount = async () => {
         const confirmou = window.confirm(
-            "ATENÇÃO: Tem certeza que deseja excluir sua conta? Todos os seus dados e de seus pets serão apagados permanentemente conforme a LGPD. Esta ação não pode ser desfeita."
+            "ATENÇÃO: Tem certeza que deseja excluir sua conta permanentemente?"
         );
-
         if (confirmou) {
             try {
-                console.log("Iniciando exclusão de dados...");
-                await deletarUsuarioCompleto(); 
-                alert("Sua conta e os dados dos seus pets foram excluídos com sucesso. Sentiremos sua falta!");
+                await deletarUsuarioCompleto();
+                alert("Conta excluída.");
                 navigate('/Login');
             } catch (error) {
-                console.error(error);
-                alert("Erro ao processar exclusão.");
+                alert("Erro ao excluir.");
             }
         }
     };
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center bg-[#F6EBDD] text-[#7A5A3F] font-bold text-xl">Carregando dados do Frida Petshop...</div>;
+    }
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -37,12 +62,14 @@ function UserPage() {
             
             <div className="w-full bg-[#F6EBDD] flex-1 flex flex-col pb-20">
                 
-                {/* Cabeçalho do Perfil */}
+                {/* Cabeçalho do Perfil - NOME DINÂMICO */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-4 md:px-20 mt-10">
                     <div className="flex flex-col md:flex-row items-center gap-4">
-                        <div className="h-28 w-28 rounded-full bg-white flex shrink-0 shadow-sm"></div>
+                        <div className="h-28 w-28 rounded-full bg-white flex shrink-0 shadow-sm overflow-hidden">
+                            {/* Espaço para foto do dono futuramente */}
+                        </div>
                         <h1 className="text-[#7A5A3F] text-2xl md:text-4xl text-center md:text-left font-bold">
-                            Olá, (Puxa do banco)
+                            Olá, {perfil?.nome || 'Usuário'}
                         </h1>
                     </div>
                     <button 
@@ -53,44 +80,57 @@ function UserPage() {
                     </button>
                 </div>
 
-                {/* Dashboard de Status */}
+                {/* Dashboard - NÚMERO DE PETS DINÂMICO */}
                 <section className="flex flex-col md:flex-row gap-4 mt-10 items-center px-4 md:px-10 lg:px-28">
                     <div className="rounded-md bg-[#F3D77A] w-full md:w-1/3 text-center text-sm font-medium text-[#7A5A3F] pt-2 pb-2 shadow-sm">
                         <p>Pets Cadastrados:</p>
-                        <p className="text-lg font-bold">(Num pets)</p>
+                        <p className="text-lg font-bold">{pets.length}</p>
                     </div>
 
                     <div className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-[#7A5A3F] w-full md:w-1/3 pt-2 pb-2 shadow-sm">
                         <p>Próximo horário agendado:</p>
-                        <p className="text-lg font-bold">(horário/data)</p>
+                        <p className="text-lg font-bold">(Em breve)</p>
                     </div>
 
                     <div className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-[#7A5A3F] w-full md:w-1/3 pt-2 pb-2 shadow-sm">
                         <p>Último agendamento:</p>
-                        <p className="text-lg font-bold">(horário/data)</p>
+                        <p className="text-lg font-bold">(Em breve)</p>
                     </div>
                 </section>  
                                                                                                         
-                {/* Meus Pets */}
+                {/* Meus Pets - LISTA DINÂMICA (MAP) */}
                 <section className="flex flex-col mt-20 px-4 md:px-10 lg:px-28">
                     <h1 className="text-[#7A5A3F] text-lg font-bold border-b border-[#7A5A3F] w-fit mb-4">
                         Meus Pets
                     </h1>
 
-                    {/* Card de Pet (Template) */}
-                    <div className="bg-[#F1E3C6] rounded-md flex flex-col md:flex-row items-center pt-1 pb-1 mt-5 shadow-sm">
-                        <div className="h-28 w-28 shrink-0 rounded-full bg-white flex ml-0 md:ml-3 mt-3 md:mt-0"></div>
+                    {pets.length > 0 ? (
+                        pets.map((pet) => (
+                            <div key={pet.id} className="bg-[#F1E3C6] rounded-md flex flex-col md:flex-row items-center pt-1 pb-1 mt-5 shadow-sm">
+                                <div className="h-28 w-28 shrink-0 rounded-full bg-white flex ml-0 md:ml-3 mt-3 md:mt-0 overflow-hidden shadow-inner">
+                                    {pet.foto_url ? (
+                                        <img src={pet.foto_url} alt={pet.nome} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Sem foto</div>
+                                    )}
+                                </div>
 
-                        <div className="flex flex-col items-center md:items-start justify-center gap-1 pl-0 md:pl-7 text-center md:text-left py-3 md:py-0">
-                            <h1 className="text-[#7A5A3F] text-2xl font-bold">(Template)</h1>
-                            <p className="text-[#7A5A3F] font-medium">(Espécie - raça)</p>
-                        </div>
+                                <div className="flex flex-col items-center md:items-start justify-center gap-1 pl-0 md:pl-7 text-center md:text-left py-3 md:py-0">
+                                    <h1 className="text-[#7A5A3F] text-2xl font-bold">{pet.nome}</h1>
+                                    <p className="text-[#7A5A3F] font-medium">({pet.especie} - {pet.raca})</p>
+                                </div>
 
-                        <div className="flex flex-row justify-center items-center ml-auto flex-wrap w-full md:w-auto md:justify-end pr-0 md:pr-10 gap-5 pb-3 md:pb-0 px-4 md:px-0">
-                            <button className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-black w-40 h-10 hover:brightness-95">Editar</button>
-                            <button className="rounded-md bg-[#E67C73] text-center text-sm font-medium text-black w-20 h-10 hover:brightness-95">Excluir</button>
+                                <div className="flex flex-row justify-center items-center ml-auto flex-wrap w-full md:w-auto md:justify-end pr-0 md:pr-10 gap-5 pb-3 md:pb-0 px-4 md:px-0">
+                                    <button className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-black w-40 h-10 hover:brightness-95">Editar</button>
+                                    <button className="rounded-md bg-[#E67C73] text-center text-sm font-medium text-black w-20 h-10 hover:brightness-95">Excluir</button>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="bg-[#F1E3C6] p-10 rounded-md text-center text-[#7A5A3F] mt-5">
+                            Você ainda não cadastrou nenhum pet. Vamos começar?
                         </div>
-                    </div>
+                    )}
 
                     <button 
                         onClick={() => navigate('/CadastroPet')}
@@ -100,42 +140,21 @@ function UserPage() {
                     </button>
                 </section>
 
-                {/* Agendamentos */}
+                {/* Agendamentos (Ainda estático) */}
                 <section className="flex flex-col mt-20 px-4 md:px-10 lg:px-28 text-[#7A5A3F]">
                     <div className="bg-[#F3D77A] rounded-md flex flex-col pt-3 shadow-md">
-                        <h1 className="ml-4 md:ml-15 text-lg font-bold">Próximos agendamentos</h1>
-
-                        <div className="bg-[#F1E3C6] flex flex-col mx-4 md:mx-15 pt-3 mt-3 mb-5 rounded-md shadow-inner">
-                            <div className="flex flex-col md:flex-row ml-5 mr-5 md:mr-28 font-bold">
-                                <h1>(Data - horário)</h1>
-                            </div>
-
-                            <div className="flex flex-col md:flex-row mt-5 ml-5 pb-3 gap-4 md:gap-0">
-                                <div className="flex flex-col gap-3 font-medium">
-                                    <p>Pet: <span className="font-normal">(Nome)</span></p>
-                                    <p>Serviço: <span className="font-normal">(Banho/Tosa)</span></p>
-                                    <p>Status: <span className="font-normal">(Confirmado)</span></p>
-                                </div>
-
-                                <div className="flex flex-row items-center justify-center flex-wrap gap-4 md:ml-auto md:mr-10">
-                                    <button className="rounded-md bg-[#5FA79B] text-black text-center text-sm font-medium w-32 h-8">Confirmar</button>
-                                    <button className="rounded-md bg-[#F3D77A] text-black text-center text-sm font-medium w-32 h-8 border border-[#7A5A3F]">Reagendar</button>
-                                    <button className="rounded-md bg-[#E67C73] text-black text-center text-sm font-medium w-32 h-8">Cancelar</button>
-                                </div>
-                            </div>
+                        <h1 className="ml-4 md:ml-15 text-lg font-bold px-4">Próximos agendamentos</h1>
+                        <div className="bg-[#F1E3C6] p-6 mx-4 md:mx-15 my-5 rounded-md text-center">
+                            Tamo fazendo esse carai ainda
                         </div>
                     </div>
                 </section>
 
-                <button className="rounded-md bg-[#5FA79B] text-center text-lg font-medium text-black h-12 w-auto mx-4 md:mx-28 mt-8 mb-10 shadow-sm hover:opacity-90">
-                    + Novo agendamento
-                </button>
-
-                {/* Seção de Segurança / LGPD */}
+                {/* LGPD */}
                 <section className="mt-20 mx-4 md:mx-28 p-6 bg-white rounded-md border-2 border-red-100 shadow-sm">
                     <h2 className="text-red-600 font-bold text-lg mb-2">Privacidade e Segurança</h2>
                     <p className="text-gray-600 text-sm mb-6">
-                        Em conformidade com a LGPD, você tem o direito de remover todos os seus dados pessoais do nosso sistema a qualquer momento. Esta ação excluirá seu perfil, histórico de agendamentos e dados dos seus pets.
+                        Em conformidade com a LGPD, você pode excluir seu perfil e todos os dados dos pets permanentemente.
                     </p>
                     <button 
                         onClick={handleDeleteAccount}
