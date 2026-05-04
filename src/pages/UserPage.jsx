@@ -121,7 +121,10 @@ function UserPage() {
                                 </div>
 
                                 <div className="flex flex-row justify-center items-center ml-auto flex-wrap w-full md:w-auto md:justify-end pr-0 md:pr-10 gap-5 pb-3 md:pb-0 px-4 md:px-0">
-                                    <button className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-black w-40 h-10 hover:brightness-95">Editar</button>
+                                    <button onClick={() => navigate(`/EditarPet/${pet.id}`)} 
+                                            className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-black w-40 h-10 hover:brightness-95">
+                                        Editar
+                                    </button>
                                     <button className="rounded-md bg-[#E67C73] text-center text-sm font-medium text-black w-20 h-10 hover:brightness-95">Excluir</button>
                                 </div>
                             </div>

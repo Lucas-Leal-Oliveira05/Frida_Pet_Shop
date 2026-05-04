@@ -12,10 +12,6 @@ export const getPetsUsuario = async () => {
   return data;
 }
 
-
-
-
-
 export const cadastroPets = async (petData) => {
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -57,3 +53,35 @@ export const uploadPetPhoto = async (file) => {
 
   return data.publicUrl;
 };
+
+// Busca um pet pelo id
+export async function getPetById(id) {
+  const { data, error } = await supabase
+    .from("pets")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Atualiza dados de um pet
+export async function updatePet(id, petData) {
+  const { error } = await supabase
+    .from("pets")
+    .update(petData)
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+// Exclui pet pelo ID
+export async function deletePet(id) {
+  const { error } = await supabase
+    .from("pets")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+}
