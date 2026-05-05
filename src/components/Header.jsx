@@ -11,7 +11,7 @@ function Header(){
         const logado = await usuarioAutenticado();
         
         if(logado){
-            navigate('/CadastroPet')
+            navigate('/UserPage')
         } else {
             navigate('/login')
         }
@@ -37,12 +37,14 @@ function Header(){
                     </div>
                     <div className='relative flex items-center justify-center px-6 py-2 font-medium pt-7'>
                         <div className='flex gap-6 mx-auto text-white'>
-                            <button>Início</button>
+                            <button onClick={() => navigate('/')}>Início</button>
                             <button>Serviços</button>
                             <button>Sobre</button>
                             <button>Contato</button>
                         </div>
-                        <button className='text-white absolute right-4 rounded-md bg-[#E67C73] px-6 py-3 text-sm font-medium'>
+                        <button 
+                            onClick={() => navigate('/Agendamento')}
+                            className='text-white absolute right-4 rounded-md bg-[#E67C73] px-6 py-3 text-sm font-medium'>
                             Agendar Serviços
                         </button>
                     </div> 

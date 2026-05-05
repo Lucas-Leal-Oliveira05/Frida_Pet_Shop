@@ -5,6 +5,7 @@ import CadastroUsuario from "./pages/CadastroUsuario";
 import CadastroPet from "./pages/CadastroPet";
 import UserPage from "./pages/UserPage";
 import EditarPet from "./pages/EditarPet";
+import Agendamento from "./pages/Agendamento";
 
 function App(){
   return(
@@ -17,6 +18,9 @@ function App(){
         <Route path="/UserPage" element={<UserPage/>}/>
         {/* Rotas Pet */}
         <Route path="/editarPet/:id" element={<EditarPet />} />
+        <Route path="/CadastroPet" element={<CadastroPet/>}/>
+        {/* Rotas Agendamento */}
+        <Route path="/Agendamento" element={<Agendamento/>} />
       </Routes>
     </Router>
   );

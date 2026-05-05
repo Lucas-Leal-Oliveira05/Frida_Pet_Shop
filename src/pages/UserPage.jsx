@@ -4,7 +4,8 @@ import Header from "../components/Header";
 import Footerx from "../components/Footerx";
 import { logoutUser, deletarUsuarioCompleto } from "../services/authService";
 import { getPerfilUsuario } from '../services/userService';
-import { getPetsUsuario } from '../services/petService';
+import { getPetsUsuario, deletePet } from '../services/petService';
+
 
 function UserPage() {
     const navigate = useNavigate();
@@ -51,6 +52,20 @@ function UserPage() {
             }
         }
     };
+
+    const handleExcluirPet = async (petId, petNome) => {
+    const confirmou = window.confirm(
+        `Tem certeza que deseja excluir ${petNome}?`
+    );
+    if (!confirmou) return;
+
+    try {
+        await deletePet(petId);
+        setPets((prev) => prev.filter((p) => p.id !== petId));
+    } catch (error) {
+        alert("Erro ao excluir pet: " + error.message);
+    }
+};
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center bg-[#F6EBDD] text-[#7A5A3F] font-bold text-xl">Carregando dados do Frida Petshop...</div>;
@@ -125,7 +140,10 @@ function UserPage() {
                                             className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-black w-40 h-10 hover:brightness-95">
                                         Editar
                                     </button>
-                                    <button className="rounded-md bg-[#E67C73] text-center text-sm font-medium text-black w-20 h-10 hover:brightness-95">Excluir</button>
+                                    <button onClick={() => handleExcluirPet(pet.id, pet.nome)}
+                                            className="rounded-md bg-[#E67C73] text-center text-sm font-medium text-black w-20 h-10 hover:brightness-95">
+                                        Excluir
+                                    </button>
                                 </div>
                             </div>
                         ))
@@ -148,7 +166,7 @@ function UserPage() {
                     <div className="bg-[#F3D77A] rounded-md flex flex-col pt-3 shadow-md">
                         <h1 className="ml-4 md:ml-15 text-lg font-bold px-4">Próximos agendamentos</h1>
                         <div className="bg-[#F1E3C6] p-6 mx-4 md:mx-15 my-5 rounded-md text-center">
-                            Tamo fazendo esse carai ainda
+                            Em produção
                         </div>
                     </div>
                 </section>
