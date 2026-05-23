@@ -93,3 +93,29 @@ export const logoutUser = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
 }
+
+export const loginAdmin = async (email, password) => {
+    const {data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+
+    if(authError) throw authError;
+
+    const {data: userData, error: userError } = await supabase
+        .from('usuarios')
+        .select('perfil')
+        .eq('id', authData.user.id)
+        .single();
+
+    
+
+    if(userError) throw userError;
+
+    if(userData.perfil !== 'ADMIN'){
+        await supabase.auth.signOut();
+        throw new Error("Acesso negado: Você não tem privilégios de Administrador");
+    }
+    
+    return authData
+}
