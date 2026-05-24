@@ -7,6 +7,10 @@ import UserPage from "./pages/UserPage";
 import EditarPet from "./pages/EditarPet";
 import Agendamento from "./pages/Agendamento";
 import LoginAdmin from "./pages/LoginAdmin";
+import AdminDashboard from "./pages/AdminDashboard"
+import AdminProfissionais from "./pages/AdminProfissionais";
+import AdminAgendamentos from "./pages/AdminAgendamentos";
+import AdminHistorico from "./pages/AdminHistorico";
 
 function App(){
   return(
@@ -23,6 +27,10 @@ function App(){
         {/* Rotas Agendamento */}
         <Route path="/Agendamento" element={<Agendamento/>} />
         <Route path="/loginAdmin" element={<LoginAdmin/>} />
+        <Route path="/AdminDashboard" element = {<AdminDashboard/>} />
+        <Route path="/AdminProfissionais" element = {<AdminProfissionais/>}/>
+        <Route path="/AdminAgendamentos" element = {<AdminAgendamentos/>}/>
+        <Route path="/AdminServicos" element={<AdminHistorico />} />
       </Routes>
     </Router>
   );

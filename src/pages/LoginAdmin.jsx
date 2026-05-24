@@ -19,7 +19,7 @@ function LoginAdmin() {
             await loginAdmin(usuario, password);
 
             alert("Acesso autorizado! Bem-vindo ao painel de controle")
-            navigate('/AdminDasboard'); //tenho que mudar dps para a rota do painel 
+            navigate('/AdminDashboard'); //tenho que mudar dps para a rota do painel 
         } catch (error) {
             console.error("Erro no login do administrador:", error.message)
             alert(error.message)
