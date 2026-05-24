@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard"
 import AdminProfissionais from "./pages/AdminProfissionais";
 import AdminAgendamentos from "./pages/AdminAgendamentos";
 import AdminHistorico from "./pages/AdminHistorico";
+import AdminClientes from "./pages/AdminClientes";
 
 function App(){
   return(
@@ -31,6 +32,7 @@ function App(){
         <Route path="/AdminProfissionais" element = {<AdminProfissionais/>}/>
         <Route path="/AdminAgendamentos" element = {<AdminAgendamentos/>}/>
         <Route path="/AdminServicos" element={<AdminHistorico />} />
+        <Route path="/AdminClientes" element={<AdminClientes />} />
       </Routes>
     </Router>
   );
