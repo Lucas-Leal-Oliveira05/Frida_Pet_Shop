@@ -54,7 +54,6 @@ export const uploadPetPhoto = async (file) => {
   return data.publicUrl;
 };
 
-// Busca um pet pelo id
 export async function getPetById(id) {
   const { data, error } = await supabase
     .from("pets")
@@ -66,7 +65,6 @@ export async function getPetById(id) {
   return data;
 }
 
-// Atualiza dados de um pet
 export async function updatePet(id, petData) {
   const { error } = await supabase
     .from("pets")
@@ -76,7 +74,6 @@ export async function updatePet(id, petData) {
   if (error) throw error;
 }
 
-// Exclui pet pelo ID
 export async function deletePet(id) {
   const { error } = await supabase
     .from("pets")
@@ -85,3 +82,88 @@ export async function deletePet(id) {
 
   if (error) throw error;
 }
+
+export const getPetsAdmin = async () => {
+    const { data, error } = await supabase
+        .from('pets')
+        .select(`
+            id,
+            nome,
+            especie,
+            raca,
+            nascimento,
+            peso,
+            foto_url,
+            observacoes,
+            usuario_id,
+            usuarios ( nome, telefone )
+        `)
+        .order('nome', { ascending: true });
+
+    if (error) throw error;
+
+    return data.map(pet => {
+        let idadeTexto = "Idade não informada";
+        if (pet.nascimento) {
+            const anoNascimento = new Date(pet.nascimento).getFullYear();
+            const anoAtual = new Date().getFullYear();
+            const diff = anoAtual - anoNascimento;
+            idadeTexto = diff <= 1 ? `${diff} ano` : `${diff} anos`;
+        }
+
+        return {
+            ...pet,
+            tutor: pet.usuarios?.nome || 'Sem tutor',
+            telefoneTutor: pet.usuarios?.telefone || 'Sem telefone',
+            idade: idadeTexto
+        };
+    });
+};
+
+export const getHistoricoPet = async (petId) => {
+    const { data, error } = await supabase
+        .from('agendamentos')
+        .select(`
+            data_hora,
+            servicos ( nome )
+        `)
+        .eq('pet_id', petId)
+        .eq('status', 'CONCLUIDO')
+        .order('data_hora', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map(h => {
+        const dataFormatada = new Date(h.data_hora).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        return {
+            data: dataFormatada,
+            servico: h.servicos?.nome || 'Serviço'
+        };
+    });
+};
+
+export const atualizarPetAdmin = async (id, dados) => {
+    const { data, error } = await supabase
+        .from('pets')
+        .update({
+            nome: dados.nome,
+            especie: dados.especie,
+            raca: dados.raca,
+            nascimento: dados.nascimento,
+            peso: parseFloat(dados.peso) || null,
+            observacoes: dados.observacoes,
+            foto_url: dados.foto_url
+        })
+        .eq('id', id);
+
+    if (error) throw error;
+    return data;
+};
+
+export const deletarPetAdmin = async (id) => {
+    const { error } = await supabase
+        .from('pets')
+        .delete()
+        .eq('id', id);
+    if (error) throw error;
+};
