@@ -1,34 +1,38 @@
-name: Frida Pet Shop CI/CD
+name: Frida Pet Shop CI
 
 on:
   push:
     branches:
       - main
-      - develop
+      - dev
 
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
   quality-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: npm
 
-      - name: Instalar dependências
+      - name: Node Version
+        run: node --version
+
+      - name: Install Dependencies
         run: npm ci
 
-      - name: Executar ESLint
+      - name: Run ESLint
         run: npm run lint
 
-      - name: Gerar Build
+      - name: Build Project
         run: npm run build
