@@ -1,4 +1,6 @@
-import Agendamento from "../pages/Agendamento";
+// import Agendamento from "../pages/Agendamento";
+/* Deixei o isso aqui pois sera usado futuramente (provavelmente)
+*/
 import { supabase } from "./supabase";
 
 export async function criarAgendamento(dados) {

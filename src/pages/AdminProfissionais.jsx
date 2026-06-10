@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../services/authService";
 import { getProfissionais, cadastrarProfissional, atualizarProfissional, deletarProfissional, getContagensProfissionaisPainel } from "../services/profissionalService";
 import AdminSidebar from "../components/AdminSidebar";
 
 function AdminProfissionais() {
-    const navigate = useNavigate();
     
     // Estados da listagem e métricas
     const [profissionais, setProfissionais] = useState([]);
@@ -14,25 +11,13 @@ function AdminProfissionais() {
         pets: 0, 
         agendamentos: 0, 
         profissionaisCount: 0 });
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 
     // Estados do Formulário/Modal (Adicionar e Editar)
     const [showForm, setShowForm] = useState(false);
     const [editId, setEditId] = useState(null); // Se tiver ID, estamos editando. Se for null, estamos adicionando.
     const [formData, setFormData] = useState({ nome: '', email: '', senha: '', telefone: '', especialidade: '' });
 
-    async function carregarProfissionais() {
-        try {
-            setLoading(true);
-            const dados = await getProfissionais();
-            setProfissionais(dados);
-            setMetricas(prev => ({ ...prev, profissionaisCount: dados.length }));
-        } catch (error) {
-            console.error("Erro ao carregar profissionais:", error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
 
     useEffect(() => {
         carregarProfissionais();
