@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../services/authService";
+// import { useNavigate } from "react-router-dom";
+// import { logoutUser } from "../services/authService";
 import { getAgendamentosPainel, getMetricasDashboard, atualizarStatusAgendamento } from "../services/agendamentoService";
 import AdminSidebar from "../components/AdminSidebar";
 
 function AdminDashboard() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     // Estados estáticos para o mockup (depois você conecta as funções do banco aqui)
     const [agendamentos, setAgendamentos] = useState([]);
@@ -15,7 +15,7 @@ function AdminDashboard() {
         totalClientes: 0, 
         totalPets: 0 
     })
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 
     const [modalConfig, setModalConfig] = useState({ show: false, type: '', id: null });
 
@@ -60,10 +60,10 @@ function AdminDashboard() {
         }
     };
 
-    const handleSair = async () => {
-        await logoutUser();
-        navigate('/LoginAdmin')
-    }
+    // const handleSair = async () => {
+    //     await logoutUser();
+    //     navigate('/LoginAdmin')
+    // }
 
     return (
         <div className="min-h-screen bg-[#F6EBDD] flex">

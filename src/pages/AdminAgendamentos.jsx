@@ -96,7 +96,7 @@ function AdminAgendamentos() {
 
                 {/* BOTÃO HISTÓRICO */}
                 <button 
-                    onClick={() => alert("Navegando para o histórico completo...")} 
+                    onClick={() => navigate("/AdminServicos")} 
                     className="bg-[#5FA79B] text-black font-semibold px-6 py-3 rounded-md hover:brightness-95 transition-all shadow-sm"
                 >
                     Histórico de atendimentos

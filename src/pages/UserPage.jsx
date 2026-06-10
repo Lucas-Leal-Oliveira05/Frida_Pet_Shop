@@ -24,8 +24,8 @@ function UserPage() {
                 
                 setPerfil(dadosPerfil);
                 setPets(listaPets);
-            } catch (error) {
-                console.error("Erro ao carregar dados:", error.message);
+            } catch {
+                alert ("Erro ao carregar dados:");
             } finally {
                 setLoading(false);
             }
@@ -47,7 +47,7 @@ function UserPage() {
                 await deletarUsuarioCompleto();
                 alert("Conta excluída.");
                 navigate('/Login');
-            } catch (error) {
+            } catch {
                 alert("Erro ao excluir.");
             }
         }

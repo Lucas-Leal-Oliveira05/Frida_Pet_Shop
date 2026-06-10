@@ -47,7 +47,7 @@ export const usuarioAutenticado = async () => {
         }
 
         return true;
-    } catch (err) {
+    } catch {
 
         return false;
     }

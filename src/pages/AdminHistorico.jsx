@@ -62,7 +62,7 @@ function AdminHistorico() {
             return;
         }
         try {
-            const dados = await getDadosRelatorioPeriodo(dataInicio, dataFim);
+            const dados = await getDadosRelatoriosPeriodo(dataInicio, dataFim);
             alert(`Relatório gerado com sucesso! Encontrados ${dados.length} atendimentos no período.`);
         } catch (error) {
             alert("Erro ao gerar relatório: " + error.message);
