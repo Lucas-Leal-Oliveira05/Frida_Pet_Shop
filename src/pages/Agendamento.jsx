@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPerfilUsuario } from "../services/userService";
 import { getPetsUsuario } from "../services/petService";
-import { criarAgendamento } from "../services/AgendamentoService";
+import { criarAgendamento } from "../services/agendamentoService";
 
 const SERVICOS = ["Banho", "Tosa", "Banho + Tosa", "Hidratação"];
 
