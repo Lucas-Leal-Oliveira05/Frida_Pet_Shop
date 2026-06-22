@@ -140,3 +140,14 @@ export const getContagensProfissionaisPainel = async () => {
         agendamentos: agendamentosCount || 0
     };
 };
+
+export const getProfissionaisAtivos = async () => {
+    const { data, error } = await supabase
+        .from('profissionais')
+        .select('id, nome')
+        .eq('ativo', true)
+        .order('nome', { ascending: true });
+
+    if (error) throw error;
+    return data;
+};

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from './pages/Home'
 import Login from "./pages/Login";
 import CadastroUsuario from "./pages/CadastroUsuario";
@@ -13,28 +13,34 @@ import AdminAgendamentos from "./pages/AdminAgendamentos";
 import AdminHistorico from "./pages/AdminHistorico";
 import AdminClientes from "./pages/AdminClientes";
 import AdminPets from "./pages/AdminPets";
+import AdminServicos from "./pages/AdminServicos";
+import LoginProfissional from "./pages/LoginProfissional";
+import DashboardProfissional from "./pages/DashboardProfissional";
 
-function App(){
-  return(
+function App() {
+  return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         {/* Rotas Usuarios */}
-        <Route path="/login" element={<Login/>}/> 
-        <Route path="/CadastroUsuario" element={<CadastroUsuario/>}/>
-        <Route path="/UserPage" element={<UserPage/>}/>
+        <Route path="/login" element={<Login />} />
+        <Route path="/CadastroUsuario" element={<CadastroUsuario />} />
+        <Route path="/UserPage" element={<UserPage />} />
         {/* Rotas Pet */}
         <Route path="/editarPet/:id" element={<EditarPet />} />
-        <Route path="/CadastroPet" element={<CadastroPet/>}/>
+        <Route path="/CadastroPet" element={<CadastroPet />} />
         {/* Rotas Agendamento */}
-        <Route path="/Agendamento" element={<Agendamento/>} />
-        <Route path="/loginAdmin" element={<LoginAdmin/>} />
-        <Route path="/AdminDashboard" element = {<AdminDashboard/>} />
-        <Route path="/AdminProfissionais" element = {<AdminProfissionais/>}/>
-        <Route path="/AdminAgendamentos" element = {<AdminAgendamentos/>}/>
+        <Route path="/Agendamento" element={<Agendamento />} />
+        <Route path="/loginAdmin" element={<LoginAdmin />} />
+        <Route path="/AdminDashboard" element={<AdminDashboard />} />
+        <Route path="/AdminProfissionais" element={<AdminProfissionais />} />
+        <Route path="/AdminAgendamentos" element={<AdminAgendamentos />} />
         <Route path="/AdminServicos" element={<AdminHistorico />} />
         <Route path="/AdminClientes" element={<AdminClientes />} />
         <Route path="/AdminPets" element={<AdminPets />} />
+        <Route path="/AdminAdicionarServicos" element={<AdminServicos />} />
+        <Route path="/LoginProfissional" element={<LoginProfissional />} />
+        <Route path="/DashboardProfissional" element={<DashboardProfissional />} />
       </Routes>
     </Router>
   );

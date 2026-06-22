@@ -4,38 +4,54 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPerfilUsuario } from "../services/userService";
 import { getPetsUsuario } from "../services/petService";
-import { criarAgendamento } from "../services/agendamentoService";
-
-const SERVICOS = ["Banho", "Tosa", "Banho + Tosa", "Hidratação"];
+import { getProfissionaisAtivos } from "../services/profissionalService";
+import { criarAgendamento, getServicosAtivos } from "../services/agendamentoService";
 
 const HORARIOS = [
   "08:00", "09:00", "10:00", "11:00",
   "13:00", "14:00", "15:00", "16:00", "17:00",
 ];
 
-const PROFISSIONAIS = ["Ana", "Carlos", "Fernanda", "João"];
+// 1️⃣ Função auxiliar: Fica do lado de fora para não recriar toda vez que a tela atualiza
+const obterDiaSemanaTexto = (dataString) => {
+  if (!dataString) return "";
+  const [ano, mes, dia] = dataString.split("-");
+  const dataObj = new Date(ano, mes - 1, dia);
+  const diasSemanaMapa = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  return diasSemanaMapa[dataObj.getDay()];
+};
 
 function Agendamento() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [loadingDados, setLoadingDados] = useState(true);
 
-  const [servicoSelecionado, setServicoSelecionado] = useState("");
+  const [servicosBanco, setServicosBanco] = useState([]);
+  const [servicoId, setServicoId] = useState(""); 
+  
   const [nome, setNome] = useState("");
   const [petId, setPetId] = useState("");
-  const [profissional, setProfissional] = useState("");
+  const [profissionalId, setProfissionalId] = useState(""); 
   const [horario, setHorario] = useState("");
   const [data, setData] = useState("");
   const [observacoes, setObservacoes] = useState("");
+  
   const [pets, setPets] = useState([]);
+  const [profissionais, setProfissionais] = useState([]);
 
+  // useEffect 1: Carrega os dados assim que a tela abre
   useEffect(() => {
     async function carregarDados() {
       try {
         const perfil = await getPerfilUsuario();
         const listaPets = await getPetsUsuario();
+        const listaProfs = await getProfissionaisAtivos();
+        const listaServs = await getServicosAtivos(); 
+
         setNome(perfil?.nome || "");
         setPets(listaPets);
+        setProfissionais(listaProfs);
+        setServicosBanco(listaServs); 
       } catch (error) {
         console.error("Erro ao carregar dados:", error.message);
       } finally {
@@ -45,8 +61,29 @@ function Agendamento() {
     carregarDados();
   }, []);
 
+  // 2️⃣ useEffect 2: A trava de segurança das folgas!
+  useEffect(() => {
+    // Só roda se o cliente já escolheu a data, o profissional e se a lista carregou
+    if (data && profissionalId && profissionais.length > 0) {
+      
+      const diaDaSemana = obterDiaSemanaTexto(data);
+      
+      // Procura o profissional selecionado
+      const profSelecionado = profissionais.find(p => p.id === profissionalId);
+
+      // Verifica se o dia escolhido está na lista de folgas dele
+      if (profSelecionado?.dias_folga?.includes(diaDaSemana)) {
+        alert(`O profissional ${profSelecionado.nome} está de folga neste dia (${diaDaSemana}). Por favor, escolha outra data ou outro profissional!`);
+        
+        // Reseta os campos para impedir o agendamento errado
+        setData(""); 
+        setProfissionalId("");
+      }
+    }
+  }, [data, profissionalId, profissionais]);
+
   const handleAgendar = async () => {
-    if (!servicoSelecionado || !petId || !profissional || !horario || !data) {
+    if (!servicoId || !petId || !profissionalId || !horario || !data) {
       alert("Preencha todos os campos obrigatórios!");
       return;
     }
@@ -54,10 +91,10 @@ function Agendamento() {
     setLoading(true);
     try {
       await criarAgendamento({
-        servico: servicoSelecionado,
+        servico_id: servicoId, 
         nome,
         pet_id: petId,
-        profissional,
+        profissional_id: profissionalId,
         horario,
         data,
         observacoes,
@@ -102,17 +139,17 @@ function Agendamento() {
 
           {/* Botões de serviço */}
           <div className="flex flex-wrap gap-3 mb-6">
-            {SERVICOS.map((s) => (
+            {servicosBanco.map((s) => (
               <button
-                key={s}
-                onClick={() => setServicoSelecionado(s)}
+                key={s.id}
+                onClick={() => setServicoId(s.id)} 
                 className={`px-5 py-2 rounded-full text-sm font-medium border transition-all
-                  ${servicoSelecionado === s
+                  ${servicoId === s.id
                     ? "bg-[#5FA79B] text-white border-[#5FA79B]"
                     : "bg-[#F3D77A] text-[#7A5A3F] border-[#e8c85a] hover:bg-[#e8c85a]"
                   }`}
               >
-                {s}
+                {s.nome}
               </button>
             ))}
           </div>
@@ -151,18 +188,18 @@ function Agendamento() {
               </select>
             </div>
 
-            {/* Profissional */}
+            {/* Profissional Dinâmico do Banco */}
             <div className="flex flex-col gap-1">
               <label className="text-[#7A5A3F] text-sm font-medium">Profissional</label>
               <select
                 className={inputClass}
-                value={profissional}
-                onChange={(e) => setProfissional(e.target.value)}
+                value={profissionalId}
+                onChange={(e) => setProfissionalId(e.target.value)}
                 disabled={loading}
               >
                 <option value="">Selecione o profissional</option>
-                {PROFISSIONAIS.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                {profissionais.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nome}</option>
                 ))}
               </select>
             </div>

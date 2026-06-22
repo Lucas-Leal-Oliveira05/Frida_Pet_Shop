@@ -5,7 +5,7 @@ import Footerx from "../components/Footerx";
 import { logoutUser, deletarUsuarioCompleto } from "../services/authService";
 import { getPerfilUsuario } from '../services/userService';
 import { getPetsUsuario, deletePet } from '../services/petService';
-
+import { getMeusAgendamentos } from '../services/agendamentoService'; 
 
 function UserPage() {
     const navigate = useNavigate();
@@ -15,19 +15,27 @@ function UserPage() {
     const [pets, setPets] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // <-- Novos estados para os agendamentos
+    const [meusAgendamentos, setMeusAgendamentos] = useState([]);
+    const [loadingAgendamentos, setLoadingAgendamentos] = useState(true);
+
     // useEffect: Dispara assim que a página abre
     useEffect(() => {
         async function carregarDados() {
             try {
                 const dadosPerfil = await getPerfilUsuario();
                 const listaPets = await getPetsUsuario();
+                const listaAgendamentos = await getMeusAgendamentos(); // <-- Busca os agendamentos do banco
                 
                 setPerfil(dadosPerfil);
                 setPets(listaPets);
-            } catch {
-                alert ("Erro ao carregar dados:");
+                setMeusAgendamentos(listaAgendamentos); // <-- Salva no estado
+            } catch (error) {
+                console.error("Detalhes do erro:", error);
+                alert ("Erro ao carregar dados:", + error.message);
             } finally {
                 setLoading(false);
+                setLoadingAgendamentos(false); // <-- Finaliza o loading dos agendamentos
             }
         }
         carregarDados();
@@ -104,7 +112,11 @@ function UserPage() {
 
                     <div className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-[#7A5A3F] w-full md:w-1/3 pt-2 pb-2 shadow-sm">
                         <p>Próximo horário agendado:</p>
-                        <p className="text-lg font-bold">(Em breve)</p>
+                        <p className="text-lg font-bold">
+                            {meusAgendamentos.length > 0 && meusAgendamentos[0].status !== 'CANCELADO'
+                                ? new Date(meusAgendamentos[0].data_hora).toLocaleDateString('pt-BR') 
+                                : '(Nenhum)'}
+                        </p>
                     </div>
 
                     <div className="rounded-md bg-[#F3D77A] text-center text-sm font-medium text-[#7A5A3F] w-full md:w-1/3 pt-2 pb-2 shadow-sm">
@@ -112,7 +124,7 @@ function UserPage() {
                         <p className="text-lg font-bold">(Em breve)</p>
                     </div>
                 </section>  
-                                                                                                        
+        
                 {/* Meus Pets - LISTA DINÂMICA (MAP) */}
                 <section className="flex flex-col mt-20 px-4 md:px-10 lg:px-28">
                     <h1 className="text-[#7A5A3F] text-lg font-bold border-b border-[#7A5A3F] w-fit mb-4">
@@ -161,13 +173,56 @@ function UserPage() {
                     </button>
                 </section>
 
-                {/* Agendamentos (Ainda estático) */}
+                {/* Agendamentos - AGORA DINÂMICO */}
                 <section className="flex flex-col mt-20 px-4 md:px-10 lg:px-28 text-[#7A5A3F]">
-                    <div className="bg-[#F3D77A] rounded-md flex flex-col pt-3 shadow-md">
-                        <h1 className="ml-4 md:ml-15 text-lg font-bold px-4">Próximos agendamentos</h1>
-                        <div className="bg-[#F1E3C6] p-6 mx-4 md:mx-15 my-5 rounded-md text-center">
-                            Em produção
-                        </div>
+                    <div className="bg-[#F3D77A] rounded-md flex flex-col pt-3 shadow-md pb-5">
+                        <h1 className="ml-4 md:ml-15 text-lg font-bold px-4 mb-3">Próximos agendamentos</h1>
+                        
+                        {loadingAgendamentos ? (
+                            <div className="bg-[#F1E3C6] p-6 mx-4 md:mx-15 rounded-md text-center">
+                                Carregando agendamentos...
+                            </div>
+                        ) : meusAgendamentos.length === 0 ? (
+                            <div className="bg-[#F1E3C6] p-6 mx-4 md:mx-15 rounded-md text-center">
+                                Você ainda não tem nenhum agendamento.
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-3 mx-4 md:mx-15">
+                                {meusAgendamentos.map((agendamento) => {
+                                    const dataObj = new Date(agendamento.data_hora);
+                                    const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                                    const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                                    let statusColor = "bg-gray-200 text-gray-700";
+                                    if (agendamento.status === "PENDENTE") statusColor = "bg-yellow-200 text-yellow-800";
+                                    if (agendamento.status === "CONFIRMADO") statusColor = "bg-blue-200 text-blue-800";
+                                    if (agendamento.status === "CONCLUIDO") statusColor = "bg-green-200 text-green-800";
+                                    if (agendamento.status === "CANCELADO") statusColor = "bg-red-200 text-red-800";
+
+                                    return (
+                                        <div key={agendamento.id} className="bg-[#F1E3C6] p-4 rounded-md flex flex-col md:flex-row items-center justify-between shadow-sm">
+                                            <div className="flex flex-col mb-2 md:mb-0 text-center md:text-left">
+                                                <span className="font-bold text-[#5a4a3a] text-lg">
+                                                    {agendamento.servico} <span className="font-normal text-sm text-[#7A5A3F]">- com {agendamento.profissional}</span>
+                                                </span>
+                                                <span className="text-[#7A5A3F] text-sm">
+                                                    🐾 Pet: {agendamento.pet}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-4 justify-center md:justify-end">
+                                                <div className="text-right">
+                                                    <p className="text-[#5a4a3a] font-bold">{dataFormatada}</p>
+                                                    <p className="text-[#7A5A3F] text-sm">às {horaFormatada}</p>
+                                                </div>
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
+                                                    {agendamento.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </section>
 
