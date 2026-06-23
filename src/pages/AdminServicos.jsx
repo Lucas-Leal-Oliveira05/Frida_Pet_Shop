@@ -5,8 +5,6 @@ import { supabase } from "../services/supabase"; // Confirme se o caminho do seu
 function AdminServicos() {
   const [servicos, setServicos] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Estados para o Modal de Cadastro/Edição
   const [modalAberto, setModalAberto] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
   const [formData, setFormData] = useState({ nome: "", preco: "", duracao_minutos: "" });
@@ -27,8 +25,11 @@ function AdminServicos() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    carregarServicos();
+useEffect(() => {
+    async function fetchDados() {
+      await carregarServicos();
+    }
+    fetchDados();
   }, []);
 
   // 2. SALVAR (CRIAR OU ATUALIZAR)
