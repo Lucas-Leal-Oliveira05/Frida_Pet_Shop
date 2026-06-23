@@ -167,3 +167,14 @@ export const deletarPetAdmin = async (id) => {
         .eq('id', id);
     if (error) throw error;
 };
+
+export const getProfissionaisAtivos = async () => {
+    const { data, error } = await supabase
+        .from('profissionais')
+        .select('id, nome')
+        .eq('ativo', true)
+        .order('nome', { ascending: true });
+
+    if (error) throw error;
+    return data;
+};
