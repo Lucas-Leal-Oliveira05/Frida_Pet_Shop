@@ -5,7 +5,7 @@ import Footerx from "../components/Footerx";
 import { logoutUser, deletarUsuarioCompleto } from "../services/authService";
 import { getPerfilUsuario } from '../services/userService';
 import { getPetsUsuario, deletePet } from '../services/petService';
-import { getMeusAgendamentos } from '../services/agendamentoService'; 
+import { getMeusAgendamentos, atualizarStatusAgendamento } from '../services/agendamentoService'; // Adicionado atualizarStatusAgendamento
 
 function UserPage() {
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ function UserPage() {
     const [pets, setPets] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // <-- Novos estados para os agendamentos
+    // Estados para os agendamentos
     const [meusAgendamentos, setMeusAgendamentos] = useState([]);
     const [loadingAgendamentos, setLoadingAgendamentos] = useState(true);
 
@@ -25,17 +25,17 @@ function UserPage() {
             try {
                 const dadosPerfil = await getPerfilUsuario();
                 const listaPets = await getPetsUsuario();
-                const listaAgendamentos = await getMeusAgendamentos(); // <-- Busca os agendamentos do banco
+                const listaAgendamentos = await getMeusAgendamentos(); 
                 
                 setPerfil(dadosPerfil);
                 setPets(listaPets);
-                setMeusAgendamentos(listaAgendamentos); // <-- Salva no estado
+                setMeusAgendamentos(listaAgendamentos); 
             } catch (error) {
                 console.error("Detalhes do erro:", error);
-                alert ("Erro ao carregar dados:", + error.message);
+                alert ("Erro ao carregar dados: " + error.message);
             } finally {
                 setLoading(false);
-                setLoadingAgendamentos(false); // <-- Finaliza o loading dos agendamentos
+                setLoadingAgendamentos(false); 
             }
         }
         carregarDados();
@@ -62,18 +62,39 @@ function UserPage() {
     };
 
     const handleExcluirPet = async (petId, petNome) => {
-    const confirmou = window.confirm(
-        `Tem certeza que deseja excluir ${petNome}?`
-    );
-    if (!confirmou) return;
+        const confirmou = window.confirm(
+            `Tem certeza que deseja excluir ${petNome}?`
+        );
+        if (!confirmou) return;
 
-    try {
-        await deletePet(petId);
-        setPets((prev) => prev.filter((p) => p.id !== petId));
-    } catch (error) {
-        alert("Erro ao excluir pet: " + error.message);
-    }
-};
+        try {
+            await deletePet(petId);
+            setPets((prev) => prev.filter((p) => p.id !== petId));
+        } catch (error) {
+            alert("Erro ao excluir pet: " + error.message);
+        }
+    };
+
+    // NOVA FUNÇÃO: Muda o status do agendamento (Confirmar ou Cancelar)
+    const handleMudarStatus = async (agendamentoId, novoStatus) => {
+        const mensagem = novoStatus === 'CANCELADO' 
+            ? "Deseja realmente cancelar este agendamento?" 
+            : "Confirmar este agendamento?";
+            
+        if (!window.confirm(mensagem)) return;
+
+        try {
+            await atualizarStatusAgendamento(agendamentoId, novoStatus);
+            // Atualiza a tela instantaneamente
+            setMeusAgendamentos((prev) => 
+                prev.map((ag) => 
+                    ag.id === agendamentoId ? { ...ag, status: novoStatus } : ag
+                )
+            );
+        } catch (error) {
+            alert("Erro ao atualizar agendamento: " + error.message);
+        }
+    };
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center bg-[#F6EBDD] text-[#7A5A3F] font-bold text-xl">Carregando dados do Frida Petshop...</div>;
@@ -173,7 +194,7 @@ function UserPage() {
                     </button>
                 </section>
 
-                {/* Agendamentos - AGORA DINÂMICO */}
+                {/* Agendamentos - AGORA COM BOTÕES */}
                 <section className="flex flex-col mt-20 px-4 md:px-10 lg:px-28 text-[#7A5A3F]">
                     <div className="bg-[#F3D77A] rounded-md flex flex-col pt-3 shadow-md pb-5">
                         <h1 className="ml-4 md:ml-15 text-lg font-bold px-4 mb-3">Próximos agendamentos</h1>
@@ -200,24 +221,53 @@ function UserPage() {
                                     if (agendamento.status === "CANCELADO") statusColor = "bg-red-200 text-red-800";
 
                                     return (
-                                        <div key={agendamento.id} className="bg-[#F1E3C6] p-4 rounded-md flex flex-col md:flex-row items-center justify-between shadow-sm">
-                                            <div className="flex flex-col mb-2 md:mb-0 text-center md:text-left">
-                                                <span className="font-bold text-[#5a4a3a] text-lg">
-                                                    {agendamento.servico} <span className="font-normal text-sm text-[#7A5A3F]">- com {agendamento.profissional}</span>
-                                                </span>
-                                                <span className="text-[#7A5A3F] text-sm">
-                                                    🐾 Pet: {agendamento.pet}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-4 justify-center md:justify-end">
-                                                <div className="text-right">
-                                                    <p className="text-[#5a4a3a] font-bold">{dataFormatada}</p>
-                                                    <p className="text-[#7A5A3F] text-sm">às {horaFormatada}</p>
+                                        <div key={agendamento.id} className="bg-[#F1E3C6] p-4 rounded-md flex flex-col shadow-sm">
+                                            {/* Bloco de Informações */}
+                                            <div className="flex flex-col md:flex-row items-center justify-between">
+                                                <div className="flex flex-col mb-2 md:mb-0 text-center md:text-left">
+                                                    <span className="font-bold text-[#5a4a3a] text-lg">
+                                                        {agendamento.servico} <span className="font-normal text-sm text-[#7A5A3F]">- com {agendamento.profissional}</span>
+                                                    </span>
+                                                    <span className="text-[#7A5A3F] text-sm">
+                                                        🐾 Pet: {agendamento.pet}
+                                                    </span>
                                                 </div>
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
-                                                    {agendamento.status}
-                                                </span>
+                                                <div className="flex items-center gap-4 justify-center md:justify-end">
+                                                    <div className="text-right">
+                                                        <p className="text-[#5a4a3a] font-bold">{dataFormatada}</p>
+                                                        <p className="text-[#7A5A3F] text-sm">às {horaFormatada}</p>
+                                                    </div>
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
+                                                        {agendamento.status}
+                                                    </span>
+                                                </div>
                                             </div>
+
+                                            {/* NOVO: Bloco de Botões de Ação (Aparece só se for PENDENTE) */}
+                                            {agendamento.status === 'PENDENTE' && (
+                                                <div className="flex gap-3 mt-4 pt-4 border-t border-[#D1BFAE]/30 justify-center md:justify-start">
+                                                    <button 
+                                                        onClick={() => handleMudarStatus(agendamento.id, 'CONFIRMADO')}
+                                                        className="bg-[#5FA79B] hover:bg-[#4d8b80] text-white px-6 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm"
+                                                    >
+                                                        Confirmar
+                                                    </button>
+                                                    
+                                                    <button 
+                                                        onClick={() => alert("A tela de reagendamento será criada em breve!")}
+                                                        className="bg-[#F3D77A] hover:bg-[#e8c85a] text-[#7A5A3F] px-6 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm"
+                                                    >
+                                                        Reagendar
+                                                    </button>
+                                                    
+                                                    <button 
+                                                        onClick={() => handleMudarStatus(agendamento.id, 'CANCELADO')}
+                                                        className="bg-[#E67C73] hover:bg-[#d4675e] text-white px-6 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm"
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}

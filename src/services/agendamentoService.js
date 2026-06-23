@@ -1,16 +1,10 @@
-// import Agendamento from "../pages/Agendamento";
-/* Deixei o isso aqui pois sera usado futuramente (provavelmente)
-*/
 import { supabase } from "./supabase";
 
 export const criarAgendamento = async (dados) => {
   const dataHoraCombinada = `${dados.data}T${dados.horario}:00`;
-
-  // Pegamos o usuário logado
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Usuário não autenticado.");
 
-  // Insere direto! (Sem precisar buscar o serviço pelo nome mais)
   const { data, error } = await supabase
     .from('agendamentos')
     .insert([
@@ -18,7 +12,7 @@ export const criarAgendamento = async (dados) => {
         cliente_id: user.id,
         pet_id: dados.pet_id,
         profissional_id: dados.profissional_id,
-        servico_id: dados.servico_id, // Recebendo o ID direto aqui!
+        servico_id: dados.servico_id,
         data_hora: dataHoraCombinada,
         status: 'PENDENTE',
         observacoes: dados.observacoes
@@ -42,9 +36,8 @@ export const getAgendamentosPainel = async () => {
         `)
     .order('data_hora', { ascending: true });
 
-  if (error) throw error;
+  if (error) throw error
 
-  // Ajusta o mapeamento para ler as propriedades com os nomes novos
   return data.map(agendamento => ({
     id: agendamento.id,
     data_hora: agendamento.data_hora,
@@ -80,7 +73,7 @@ export const getMetricasDashboard = async () => {
   const { count: pendentes, error: err3 } = await supabase
     .from('agendamentos')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'Pendentes');
+    .eq('status', 'PENDENTE');
 
   const { count: hojeCount, error: err4 } = await supabase
     .from('agendamentos')

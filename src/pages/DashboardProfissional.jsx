@@ -1,16 +1,122 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import Header from "../components/Header";
+import { supabase } from "../services/supabase";
 
 function DashboardProfissional() {
+  const navigate = useNavigate(); // <-- Iniciamos o hook
   const [abaAtiva, setAbaAtiva] = useState("agenda");
-  const [folgas, setFolgas] = useState(["Ter", "Sáb"]); 
-  const diasSemana = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+  const [loading, setLoading] = useState(true);
+  const [profissionalId, setProfissionalId] = useState(null);
+  const [folgas, setFolgas] = useState([]);
+  const [agendamentos, setAgendamentos] = useState([]);
+  const hoje = new Date().toISOString().split("T")[0];
+  const [dataSelecionada, setDataSelecionada] = useState(hoje);
 
-  const toggleFolga = (dia) => {
+  const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+  useEffect(() => {
+    async function carregarDadosProfissional() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profData, error } = await supabase
+          .from("profissionais")
+          .select("id, dias_folga")
+          .eq("id", user.id) 
+          .maybeSingle(); 
+
+        if (error) throw error;
+
+        if (!profData) {
+          console.warn("O usuário logado não está cadastrado na tabela de profissionais.");
+          setLoading(false);
+          return;
+        }
+
+        setProfissionalId(profData.id);
+        setFolgas(profData.dias_folga || []);
+      } catch (error) {
+        console.error("Erro ao buscar dados do profissional:", error.message);
+        setLoading(false);
+      }
+    }
+    carregarDadosProfissional();
+  }, []);
+
+  useEffect(() => {
+    async function carregarAgenda() {
+      if (!profissionalId || !dataSelecionada) return;
+      setLoading(true);
+
+      try {
+        const { data, error } = await supabase
+          .from("agendamentos")
+          .select(`
+            id,
+            data_hora,
+            pets ( nome ),
+            servicos ( nome )
+          `)
+          .eq("profissional_id", profissionalId)
+          .gte("data_hora", `${dataSelecionada}T00:00:00`)
+          .lte("data_hora", `${dataSelecionada}T23:59:59`)
+          .order("data_hora", { ascending: true }); 
+
+        if (error) throw error;
+
+        const agendaFormatada = (data || []).map(item => {
+          const dataObj = new Date(item.data_hora);
+          return {
+            ...item,
+            horarioExibicao: dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          };
+        });
+
+        setAgendamentos(agendaFormatada);
+      } catch (error) {
+        console.error("Erro ao carregar a agenda:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    carregarAgenda();
+  }, [profissionalId, dataSelecionada]);
+
+  const toggleFolga = async (dia) => {
+    if (!profissionalId) return;
+
+    let novasFolgas;
     if (folgas.includes(dia)) {
-      setFolgas(folgas.filter(d => d !== dia));
+      novasFolgas = folgas.filter((d) => d !== dia);
     } else {
-      setFolgas([...folgas, dia]);
+      novasFolgas = [...folgas, dia];
+    }
+
+    setFolgas(novasFolgas);
+
+    try {
+      const { error } = await supabase
+        .from("profissionais")
+        .update({ dias_folga: novasFolgas })
+        .eq("id", profissionalId);
+
+      if (error) throw error;
+    } catch (error) {
+      alert("Erro ao salvar a folga: " + error.message);
+      setFolgas(folgas); 
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      navigate("/LoginProfissional");
+    } catch (error) {
+      alert("Erro ao sair: " + error.message);
     }
   };
 
@@ -18,7 +124,6 @@ function DashboardProfissional() {
     <div className="min-h-screen bg-[#F6EBDD] flex flex-col font-sans text-[#5a4a3a]">
       <Header />
 
-      {/* Container Principal que ocupa o resto da tela perfeitamente */}
       <div className="flex flex-1">
         
         {/* SIDEBAR ESQUERDA */}
@@ -41,20 +146,27 @@ function DashboardProfissional() {
           >
             Gerenciamento
           </button>
+          <button
+            onClick={handleLogout}
+            className="mt-auto py-6 text-center font-bold text-lg text-[#E67C73] border-t border-[#D1BFAE] hover:bg-[#e8dbc0] transition-colors"
+          >
+            Sair
+          </button>
         </aside>
 
         {/* ÁREA DE CONTEÚDO DIREITA */}
         <main className="flex-1 p-8 md:p-12">
           
-          {/* CONTEÚDO DA ABA: AGENDA */}
+          {/* ABA AGENDA */}
           {abaAtiva === "agenda" && (
             <div className="max-w-3xl">
               <div className="mb-8">
-                <label className="block text-[#7A5A3F] font-bold mb-2">Data</label>
+                <label className="block text-[#7A5A3F] font-bold mb-2">Selecione a Data</label>
                 <input 
-                  type="text" 
-                  defaultValue="19/03" 
-                  className="bg-[#F3D77A] text-[#7A5A3F] font-bold px-4 py-2 rounded-md shadow-sm border-none outline-none focus:ring-2 focus:ring-[#5FA79B] w-32"
+                  type="date" 
+                  value={dataSelecionada}
+                  onChange={(e) => setDataSelecionada(e.target.value)}
+                  className="bg-[#F3D77A] text-[#7A5A3F] font-bold px-4 py-2 rounded-md shadow-sm border-none outline-none focus:ring-2 focus:ring-[#5FA79B]"
                 />
               </div>
 
@@ -70,33 +182,30 @@ function DashboardProfissional() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-[#D1BFAE] hover:bg-[#e8dbc0] transition-colors">
-                      <td className="py-4 border-r border-[#D1BFAE] font-medium">Banho</td>
-                      <td className="py-4 border-r border-[#D1BFAE] font-medium">13:15</td>
-                      <td className="py-4 font-medium">Toby</td>
-                    </tr>
-                    <tr className="border-b border-[#D1BFAE] hover:bg-[#e8dbc0] transition-colors">
-                      <td className="py-4 border-r border-[#D1BFAE] font-medium">Banho + tosa</td>
-                      <td className="py-4 border-r border-[#D1BFAE] font-medium">15:30</td>
-                      <td className="py-4 font-medium">Thor</td>
-                    </tr>
-                    <tr className="border-b border-[#D1BFAE] h-14">
-                      <td className="border-r border-[#D1BFAE]"></td>
-                      <td className="border-r border-[#D1BFAE]"></td>
-                      <td></td>
-                    </tr>
-                    <tr className="h-14">
-                      <td className="border-r border-[#D1BFAE]"></td>
-                      <td className="border-r border-[#D1BFAE]"></td>
-                      <td></td>
-                    </tr>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="3" className="py-8 text-[#7A5A3F] font-medium animate-pulse">Carregando agenda...</td>
+                      </tr>
+                    ) : agendamentos.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" className="py-8 text-[#7A5A3F] font-medium">Nenhum agendamento para este dia. 🎉</td>
+                      </tr>
+                    ) : (
+                      agendamentos.map((agendamento) => (
+                        <tr key={agendamento.id} className="border-b border-[#D1BFAE] hover:bg-[#e8dbc0] transition-colors">
+                          <td className="py-4 border-r border-[#D1BFAE] font-medium">{agendamento.servicos?.nome || '-'}</td>
+                          <td className="py-4 border-r border-[#D1BFAE] font-medium">{agendamento.horarioExibicao || '-'}</td>
+                          <td className="py-4 font-medium">{agendamento.pets?.nome || '-'}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           )}
 
-          {/* CONTEÚDO DA ABA: GERENCIAMENTO (FOLGA) */}
+          {/* ABA GERENCIAMENTO */}
           {abaAtiva === "gerenciamento" && (
             <div className="max-w-3xl">
               <h3 className="text-[#7A5A3F] font-bold text-xl mb-4">Dias de Folga</h3>
@@ -116,7 +225,9 @@ function DashboardProfissional() {
                   </button>
                 ))}
               </div>
-              <p className="text-sm text-[#7A5A3F] mt-4 font-medium">Clique nos dias para marcar ou desmarcar suas folgas.</p>
+              <p className="text-sm text-[#7A5A3F] mt-4 font-medium">
+                Clique nos dias para marcar ou desmarcar suas folgas. Elas são salvas automaticamente.
+              </p>
             </div>
           )}
 

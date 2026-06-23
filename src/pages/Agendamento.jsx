@@ -25,21 +25,17 @@ function Agendamento() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [loadingDados, setLoadingDados] = useState(true);
-
   const [servicosBanco, setServicosBanco] = useState([]);
   const [servicoId, setServicoId] = useState(""); 
-  
   const [nome, setNome] = useState("");
   const [petId, setPetId] = useState("");
   const [profissionalId, setProfissionalId] = useState(""); 
   const [horario, setHorario] = useState("");
   const [data, setData] = useState("");
   const [observacoes, setObservacoes] = useState("");
-  
   const [pets, setPets] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
 
-  // useEffect 1: Carrega os dados assim que a tela abre
   useEffect(() => {
     async function carregarDados() {
       try {
@@ -61,21 +57,15 @@ function Agendamento() {
     carregarDados();
   }, []);
 
-  // 2️⃣ useEffect 2: A trava de segurança das folgas!
   useEffect(() => {
-    // Só roda se o cliente já escolheu a data, o profissional e se a lista carregou
     if (data && profissionalId && profissionais.length > 0) {
       
       const diaDaSemana = obterDiaSemanaTexto(data);
-      
-      // Procura o profissional selecionado
       const profSelecionado = profissionais.find(p => p.id === profissionalId);
 
-      // Verifica se o dia escolhido está na lista de folgas dele
       if (profSelecionado?.dias_folga?.includes(diaDaSemana)) {
         alert(`O profissional ${profSelecionado.nome} está de folga neste dia (${diaDaSemana}). Por favor, escolha outra data ou outro profissional!`);
         
-        // Reseta os campos para impedir o agendamento errado
         setData(""); 
         setProfissionalId("");
       }
