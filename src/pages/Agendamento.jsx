@@ -4,50 +4,38 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPerfilUsuario } from "../services/userService";
 import { getPetsUsuario } from "../services/petService";
-import { getProfissionaisAtivos } from "../services/profissionalService";
-import { criarAgendamento, getServicosAtivos } from "../services/agendamentoService";
+import { criarAgendamento } from "../services/agendamentoService";
+
+const SERVICOS = ["Banho", "Tosa", "Banho + Tosa", "Hidratação"];
 
 const HORARIOS = [
   "08:00", "09:00", "10:00", "11:00",
   "13:00", "14:00", "15:00", "16:00", "17:00",
 ];
 
-// 1️⃣ Função auxiliar: Fica do lado de fora para não recriar toda vez que a tela atualiza
-const obterDiaSemanaTexto = (dataString) => {
-  if (!dataString) return "";
-  const [ano, mes, dia] = dataString.split("-");
-  const dataObj = new Date(ano, mes - 1, dia);
-  const diasSemanaMapa = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  return diasSemanaMapa[dataObj.getDay()];
-};
+const PROFISSIONAIS = ["Ana", "Carlos", "Fernanda", "João"];
 
 function Agendamento() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [loadingDados, setLoadingDados] = useState(true);
-  const [servicosBanco, setServicosBanco] = useState([]);
-  const [servicoId, setServicoId] = useState(""); 
+
+  const [servicoSelecionado, setServicoSelecionado] = useState("");
   const [nome, setNome] = useState("");
   const [petId, setPetId] = useState("");
-  const [profissionalId, setProfissionalId] = useState(""); 
+  const [profissional, setProfissional] = useState("");
   const [horario, setHorario] = useState("");
   const [data, setData] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [pets, setPets] = useState([]);
-  const [profissionais, setProfissionais] = useState([]);
 
   useEffect(() => {
     async function carregarDados() {
       try {
         const perfil = await getPerfilUsuario();
         const listaPets = await getPetsUsuario();
-        const listaProfs = await getProfissionaisAtivos();
-        const listaServs = await getServicosAtivos(); 
-
         setNome(perfil?.nome || "");
         setPets(listaPets);
-        setProfissionais(listaProfs);
-        setServicosBanco(listaServs); 
       } catch (error) {
         console.error("Erro ao carregar dados:", error.message);
       } finally {
@@ -57,23 +45,8 @@ function Agendamento() {
     carregarDados();
   }, []);
 
-  useEffect(() => {
-    if (data && profissionalId && profissionais.length > 0) {
-      
-      const diaDaSemana = obterDiaSemanaTexto(data);
-      const profSelecionado = profissionais.find(p => p.id === profissionalId);
-
-      if (profSelecionado?.dias_folga?.includes(diaDaSemana)) {
-        alert(`O profissional ${profSelecionado.nome} está de folga neste dia (${diaDaSemana}). Por favor, escolha outra data ou outro profissional!`);
-        
-        setData(""); 
-        setProfissionalId("");
-      }
-    }
-  }, [data, profissionalId, profissionais]);
-
   const handleAgendar = async () => {
-    if (!servicoId || !petId || !profissionalId || !horario || !data) {
+    if (!servicoSelecionado || !petId || !profissional || !horario || !data) {
       alert("Preencha todos os campos obrigatórios!");
       return;
     }
@@ -81,10 +54,10 @@ function Agendamento() {
     setLoading(true);
     try {
       await criarAgendamento({
-        servico_id: servicoId, 
+        servico: servicoSelecionado,
         nome,
         pet_id: petId,
-        profissional_id: profissionalId,
+        profissional,
         horario,
         data,
         observacoes,
@@ -129,17 +102,17 @@ function Agendamento() {
 
           {/* Botões de serviço */}
           <div className="flex flex-wrap gap-3 mb-6">
-            {servicosBanco.map((s) => (
+            {SERVICOS.map((s) => (
               <button
-                key={s.id}
-                onClick={() => setServicoId(s.id)} 
+                key={s}
+                onClick={() => setServicoSelecionado(s)}
                 className={`px-5 py-2 rounded-full text-sm font-medium border transition-all
-                  ${servicoId === s.id
+                  ${servicoSelecionado === s
                     ? "bg-[#5FA79B] text-white border-[#5FA79B]"
                     : "bg-[#F3D77A] text-[#7A5A3F] border-[#e8c85a] hover:bg-[#e8c85a]"
                   }`}
               >
-                {s.nome}
+                {s}
               </button>
             ))}
           </div>
@@ -178,18 +151,18 @@ function Agendamento() {
               </select>
             </div>
 
-            {/* Profissional Dinâmico do Banco */}
+            {/* Profissional */}
             <div className="flex flex-col gap-1">
               <label className="text-[#7A5A3F] text-sm font-medium">Profissional</label>
               <select
                 className={inputClass}
-                value={profissionalId}
-                onChange={(e) => setProfissionalId(e.target.value)}
+                value={profissional}
+                onChange={(e) => setProfissional(e.target.value)}
                 disabled={loading}
               >
                 <option value="">Selecione o profissional</option>
-                {profissionais.map((p) => (
-                  <option key={p.id} value={p.id}>{p.nome}</option>
+                {PROFISSIONAIS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
                 ))}
               </select>
             </div>

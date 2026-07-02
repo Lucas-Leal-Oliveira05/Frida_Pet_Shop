@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 
+// 1. LISTAR PROFISSIONAIS
 export const getProfissionais = async () => {
     const { data, error } = await supabase
         .from('profissionais')
@@ -25,6 +26,7 @@ export const getProfissionais = async () => {
     }));
 };
 
+// 2. CADASTRAR PROFISSIONAL (Corrigido o 'profesional' para 'profissional')
 export const cadastrarProfissional = async (prof) => {
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email: prof.email,
@@ -63,9 +65,11 @@ export const cadastrarProfissional = async (prof) => {
     return data;
 };
 
+// 3. ATUALIZAR PROFISSIONAL (Mais robusto para evitar quebras)
 export const atualizarProfissional = async (id, usuarioId, dados) => {
     if (!usuarioId) throw new Error("ID do usuário correspondente não foi encontrado.");
 
+    // Atualiza na tabela de usuários
     const { error: userError } = await supabase
         .from('usuarios')
         .update({
@@ -77,6 +81,7 @@ export const atualizarProfissional = async (id, usuarioId, dados) => {
 
     if (userError) throw userError;
 
+    // Atualiza na tabela de profissionais
     const { data, error: profError } = await supabase
         .from('profissionais')
         .update({
@@ -90,6 +95,7 @@ export const atualizarProfissional = async (id, usuarioId, dados) => {
 };
 
 export const deletarProfissional = async (id, usuarioId) => {
+    // Deleta da tabela profissional primeiro devido às restrições de chaves
     const { error: profError } = await supabase
         .from('profissionais')
         .delete()
@@ -133,15 +139,4 @@ export const getContagensProfissionaisPainel = async () => {
         pets: petsCount || 0,
         agendamentos: agendamentosCount || 0
     };
-};
-
-export const getProfissionaisAtivos = async () => {
-    const { data, error } = await supabase
-        .from('profissionais')
-        .select('id, nome, dias_folga')
-        .eq('ativo', true)
-        .order('nome', { ascending: true });
-
-    if (error) throw error;
-    return data;
 };

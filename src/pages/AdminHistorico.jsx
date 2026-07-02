@@ -6,9 +6,13 @@ function AdminHistorico() {
     const [historicoTotal, setHistoricoTotal] = useState([]);
     const [historicoFiltrado, setHistoricoFiltrado] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    //inputs de filtro do topo
     const [filtroCliente, setFiltroCliente] = useState("");
     const [filtroPet, setFiltroPet] = useState("");
     const [filtroProfissional, setFiltroProfissional] = useState("");
+
+    //relatório de baixar
     const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState("");
 
