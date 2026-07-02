@@ -46,6 +46,9 @@ function AdminSidebar() {
                 <button onClick={() => navigate('/AdminProfissionais')} className={aplicarEstiloBotao('/AdminProfissionais')}>
                     Profissionais
                 </button>
+                 <button onClick={() => navigate('/AdminAdicionarServicos')} className={aplicarEstiloBotao('/AdminAdicionarServicos')}>
+                   Adicionar Serviços
+                </button>
             </nav>
 
             <button 
