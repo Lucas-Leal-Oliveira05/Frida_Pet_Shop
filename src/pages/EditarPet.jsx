@@ -40,7 +40,7 @@ function EditarPet() {
     };
 
     carregarPet();
-  }, [id,navigate]);
+  }, [id]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {

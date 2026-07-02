@@ -42,7 +42,7 @@ export const getHistoricoCompletoServicos = async () => {
             id,
             data_hora,
             status,
-            usuarios!agendamentos_cliente_id_fkey ( nome ),
+            usuarios!agendamentos_clientes_id_fkey ( nome ),
             pets ( nome ),
             profissionais ( nome ),
             servicos ( nome )
@@ -71,7 +71,7 @@ export const getDadosRelatoriosPeriodo = async (dataInicio, dataFim) => {
         .select( `
             data_hora,
             status,
-            usuarios!agendamentos_cliente_id_fkey ( nome ),
+            usuarios!agendamentos_clientes_id_fkey ( nome ),
             pets ( nome ),
             servicos ( nome, preco ),
             profissionais ( nome )
